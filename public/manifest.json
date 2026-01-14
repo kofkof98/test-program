@@ -1,0 +1,16 @@
+{
+  "name": "中華電信計算機概論題庫",
+  "short_name": "CS Quiz",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFDFD",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
