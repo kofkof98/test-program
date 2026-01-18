@@ -11,7 +11,8 @@ import {
   History,
   LayoutGrid,
   Eye,
-  Award
+  Award,
+  Trash2 // 新增 Trash2 圖示
 } from 'lucide-react';
 
 /**
@@ -970,38 +971,72 @@ const initialQuestions = [
 
 const App = () => {
   const [view, setView] = useState('home'); 
-  const [practicedRecords, setPracticedRecords] = useState({}); 
+  
+  // 1. 修改：從 localStorage 讀取紀錄 (如果有)，否則使用空物件
+  const [practicedRecords, setPracticedRecords] = useState(() => {
+    try {
+      const saved = localStorage.getItem('cs-quiz-records');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      console.error("讀取紀錄失敗", e);
+      return {};
+    }
+  });
+
   const [currentYear, setCurrentYear] = useState(null);
   const [quizIndex, setQuizIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // 1. 修改：當練習紀錄改變時，自動儲存到 localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('cs-quiz-records', JSON.stringify(practicedRecords));
+    } catch (e) {
+      console.error("儲存紀錄失敗", e);
+    }
+  }, [practicedRecords]);
+
+  // 3. 新增：清除紀錄的功能
+  const handleClearRecords = () => {
+    if (window.confirm('確定要清除所有作答紀錄嗎？此動作無法復原。')) {
+      setPracticedRecords({});
+      localStorage.removeItem('cs-quiz-records');
+      alert('紀錄已清除！');
+    }
+  };
+
   // 年度進度計算
   const years = ['100年', '101年', '102年', '103年'];
+  // 注意：這裡假設您的 initialQuestions 已經在上面定義好了
+  // 為了防止複製貼上出錯，這裡使用 window.initialQuestions 或是假設它存在 scope 中
+  // 實際使用時，請確保 initialQuestions 變數在 App 元件上方
+  const allQuestions = typeof initialQuestions !== 'undefined' ? initialQuestions : [];
+
   const stats = useMemo(() => {
     return years.map(year => {
-      const yearQuestions = initialQuestions.filter(q => q.year === year);
+      const yearQuestions = allQuestions.filter(q => q.year === year);
       const total = yearQuestions.length;
       const practiced = yearQuestions.filter(q => practicedRecords[q.id]).length;
       return { year, total, practiced };
     });
-  }, [practicedRecords]);
+  }, [practicedRecords, allQuestions]);
 
   // 當前測驗題目列表
   const currentQuestions = useMemo(() => {
-    return currentYear ? initialQuestions.filter(q => q.year === currentYear) : [];
-  }, [currentYear]);
+    return currentYear ? allQuestions.filter(q => q.year === currentYear) : [];
+  }, [currentYear, allQuestions]);
 
   // 已作答題目列表 (調閱用)
   const practicedList = useMemo(() => {
-    return initialQuestions.filter(q => practicedRecords[q.id]);
-  }, [practicedRecords]);
+    return allQuestions.filter(q => practicedRecords[q.id]);
+  }, [practicedRecords, allQuestions]);
 
   // 開始某年份練習
   const startQuiz = (year) => {
     setCurrentYear(year);
-    const yearQs = initialQuestions.filter(q => q.year === year);
+    const yearQs = allQuestions.filter(q => q.year === year);
     const firstUnpracticed = yearQs.findIndex(q => !practicedRecords[q.id]);
     setQuizIndex(firstUnpracticed !== -1 ? firstUnpracticed : 0);
     resetQuizState();
@@ -1107,8 +1142,16 @@ const App = () => {
                     <Award className="w-8 h-8 text-yellow-500" />
                 </div>
                 <h3 className="font-bold text-slate-700 mb-1">準備好挑戰了嗎？</h3>
-                <p className="text-xs text-slate-400">目前收錄 125 題完整題庫，包含詳細解析。</p>
+                <p className="text-xs text-slate-400">目前收錄 {allQuestions.length} 題完整題庫，包含詳細解析。</p>
             </div>
+
+            {/* 3. 新增：清除紀錄按鈕 */}
+            <button
+              onClick={handleClearRecords}
+              className="w-full py-4 rounded-2xl border-2 border-dashed border-slate-200 text-slate-400 font-bold hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all flex items-center justify-center gap-2 text-sm"
+            >
+              <Trash2 className="w-4 h-4" /> 清除所有作答紀錄
+            </button>
           </div>
         )}
 
@@ -1265,16 +1308,17 @@ const App = () => {
       <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
         {isMenuOpen && (
           <div className="flex flex-col gap-3 animate-in slide-in-from-bottom-4 duration-300 items-end mb-2">
+            {/* 2. 修改：按鈕顏色改為藍色 (bg-blue-600 text-white) */}
             <button 
               onClick={() => { setView('home'); setIsMenuOpen(false); }}
-              className="bg-white/90 backdrop-blur-md shadow-2xl border border-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-900 hover:text-white transition-all flex items-center gap-3 px-6 ring-1 ring-slate-200"
+              className="bg-blue-600 text-white shadow-xl shadow-blue-200 p-4 rounded-full hover:bg-blue-700 transition-all flex items-center gap-3 px-6"
             >
               <LayoutGrid className="w-5 h-5" />
               <span className="font-black text-sm tracking-tight">題庫首頁</span>
             </button>
             <button 
               onClick={() => { setView('history'); setIsMenuOpen(false); }}
-              className="bg-white/90 backdrop-blur-md shadow-2xl border border-slate-100 p-4 rounded-full text-slate-600 hover:bg-slate-900 hover:text-white transition-all flex items-center gap-3 px-6 ring-1 ring-slate-200"
+              className="bg-blue-600 text-white shadow-xl shadow-blue-200 p-4 rounded-full hover:bg-blue-700 transition-all flex items-center gap-3 px-6"
             >
               <History className="w-5 h-5" />
               <span className="font-black text-sm tracking-tight">作答紀錄</span>
