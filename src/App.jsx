@@ -12,7 +12,7 @@ import {
   LayoutGrid,
   Eye,
   Award,
-  Trash2 // 新增 Trash2 圖示
+  Trash2 // 新增垃圾桶圖示
 } from 'lucide-react';
 
 /**
@@ -1007,13 +1007,11 @@ const App = () => {
     }
   };
 
-  // 年度進度計算
-  const years = ['100年', '101年', '102年', '103年'];
-  // 注意：這裡假設您的 initialQuestions 已經在上面定義好了
-  // 為了防止複製貼上出錯，這裡使用 window.initialQuestions 或是假設它存在 scope 中
-  // 實際使用時，請確保 initialQuestions 變數在 App 元件上方
+  // 確保 initialQuestions 存在，若您上面已定義，這邊直接使用
   const allQuestions = typeof initialQuestions !== 'undefined' ? initialQuestions : [];
 
+  // 年度進度計算
+  const years = ['100年', '101年', '102年', '103年'];
   const stats = useMemo(() => {
     return years.map(year => {
       const yearQuestions = allQuestions.filter(q => q.year === year);
@@ -1145,10 +1143,10 @@ const App = () => {
                 <p className="text-xs text-slate-400">目前收錄 {allQuestions.length} 題完整題庫，包含詳細解析。</p>
             </div>
 
-            {/* 3. 新增：清除紀錄按鈕 */}
+            {/* 3. 新增：清除紀錄按鈕 (紅色樣式) */}
             <button
               onClick={handleClearRecords}
-              className="w-full py-4 rounded-2xl border-2 border-dashed border-slate-200 text-slate-400 font-bold hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all flex items-center justify-center gap-2 text-sm"
+              className="w-full py-4 rounded-2xl border-2 border-dashed border-red-100 bg-red-50/50 text-red-500 font-bold hover:bg-red-100 hover:border-red-300 transition-all flex items-center justify-center gap-2 text-sm"
             >
               <Trash2 className="w-4 h-4" /> 清除所有作答紀錄
             </button>
@@ -1304,21 +1302,20 @@ const App = () => {
         )}
       </main>
 
-      {/* 微型懸浮導覽按鈕 */}
+      {/* 微型懸浮導覽按鈕 (修正版：強制使用色碼確保藍色顯示) */}
       <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
         {isMenuOpen && (
           <div className="flex flex-col gap-3 animate-in slide-in-from-bottom-4 duration-300 items-end mb-2">
-            {/* 2. 修改：按鈕顏色改為藍色 (bg-blue-600 text-white) */}
             <button 
               onClick={() => { setView('home'); setIsMenuOpen(false); }}
-              className="bg-blue-600 text-white shadow-xl shadow-blue-200 p-4 rounded-full hover:bg-blue-700 transition-all flex items-center gap-3 px-6"
+              className="bg-[#2563eb] text-white shadow-xl shadow-blue-200 p-4 rounded-full hover:bg-blue-700 transition-all flex items-center gap-3 px-6 ring-2 ring-white/20"
             >
               <LayoutGrid className="w-5 h-5" />
               <span className="font-black text-sm tracking-tight">題庫首頁</span>
             </button>
             <button 
               onClick={() => { setView('history'); setIsMenuOpen(false); }}
-              className="bg-blue-600 text-white shadow-xl shadow-blue-200 p-4 rounded-full hover:bg-blue-700 transition-all flex items-center gap-3 px-6"
+              className="bg-[#2563eb] text-white shadow-xl shadow-blue-200 p-4 rounded-full hover:bg-blue-700 transition-all flex items-center gap-3 px-6 ring-2 ring-white/20"
             >
               <History className="w-5 h-5" />
               <span className="font-black text-sm tracking-tight">作答紀錄</span>
@@ -1327,7 +1324,7 @@ const App = () => {
         )}
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className={`w-14 h-14 rounded-full shadow-2xl transition-all duration-500 flex items-center justify-center ring-4 ring-white/50 ${isMenuOpen ? 'bg-slate-900 text-white rotate-90 scale-90' : 'bg-blue-600 text-white hover:scale-110 active:scale-90 shadow-blue-200'}`}
+          className={`w-14 h-14 rounded-full shadow-2xl transition-all duration-500 flex items-center justify-center ring-4 ring-white/50 ${isMenuOpen ? 'bg-slate-900 text-white rotate-90 scale-90' : 'bg-[#2563eb] text-white hover:scale-110 active:scale-90 shadow-blue-200'}`}
         >
           {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
